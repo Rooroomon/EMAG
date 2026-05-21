@@ -1,12 +1,19 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
-public class InputManager : MonoBehaviour
+public class Player : MonoBehaviour
 {
     [SerializeField] private PlayerInput playerInput;
     [SerializeField] float MoveSpeed = 10;
     float MoveDir = 0;
     Rigidbody2D rigid;
+    public int maxHp = 5;
+    public int currentHp = 5;
+    bool invincibilityTime = false;
+    float iCoolTime = 1;
+    public System.Action OnHealthChange;
+    public bool DamageTrigger = false;
 
     void Awake()
     {
@@ -28,6 +35,12 @@ public class InputManager : MonoBehaviour
     {
         rigid.AddForceX(MoveDir * MoveSpeed);
         rigid.linearVelocityX = Mathf.Clamp(rigid.linearVelocityX, -5, 5);
+
+        if(DamageTrigger)
+        {
+            TakeDamage(1);
+            DamageTrigger = false;
+        }
     }
 
     public void EventSub(InputAction.CallbackContext context)
@@ -43,5 +56,22 @@ public class InputManager : MonoBehaviour
         {
             rigid.linearVelocityY = 7.5f;
         }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        if (!invincibilityTime)
+        {
+            invincibilityTime = true;
+            currentHp -= damage;
+            OnHealthChange?.Invoke();
+            StartCoroutine(IColltimeControl());
+        }
+    }
+
+    private IEnumerator IColltimeControl()
+    {
+        yield return new WaitForSeconds(iCoolTime);
+        invincibilityTime = false;
     }
 }
