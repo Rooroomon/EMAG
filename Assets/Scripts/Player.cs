@@ -1,11 +1,15 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using Unity.Cinemachine;
+
 
 public class Player : MonoBehaviour
 {
     [SerializeField] private PlayerInput playerInput;
     [SerializeField] float MoveSpeed = 10;
+    public CinemachineImpulseSource impulseSource;
+
     float MoveDir = 0;
     Rigidbody2D rigid;
     public int maxHp = 5;
@@ -45,8 +49,6 @@ public class Player : MonoBehaviour
 
     public void EventSub(InputAction.CallbackContext context)
     {
-        //Debug.Log($"{context.action.name}");
-
         if(context.action.name == "Move")
         {
             MoveDir = context.ReadValue<float>();
@@ -54,7 +56,7 @@ public class Player : MonoBehaviour
 
         if(context.action.name == "Jump")
         {
-            rigid.linearVelocityY = 7.5f;
+            rigid.linearVelocityY = 6f;
         }
     }
 
@@ -64,6 +66,7 @@ public class Player : MonoBehaviour
         {
             invincibilityTime = true;
             currentHp -= damage;
+            impulseSource.GenerateImpulse();
             OnHealthChange?.Invoke();
             StartCoroutine(IColltimeControl());
         }
@@ -73,5 +76,13 @@ public class Player : MonoBehaviour
     {
         yield return new WaitForSeconds(iCoolTime);
         invincibilityTime = false;
+    }
+    
+    public void ResetPlayer()
+    {
+        StopAllCoroutines();
+        currentHp = maxHp;
+        invincibilityTime = false;
+        OnHealthChange?.Invoke();
     }
 }

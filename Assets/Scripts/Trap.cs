@@ -2,15 +2,30 @@ using UnityEngine;
 
 public class Trap : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public int damaage = 1;
+    public bool isDropZone = false;
+    public Vector2 teleport;
+    /*
+    void OnTriggerEnter2D(Collider2D other)
     {
-        
+        Debug.Log($"Entered {other.name}");
     }
-
-    // Update is called once per frame
-    void Update()
+    */
+    void OnTriggerStay2D(Collider2D other)
     {
-        
+        if(other.name == "Player")
+        {
+            if(isDropZone)
+            {
+                other.transform.position = teleport;
+            }
+            other.GetComponent<Player>().TakeDamage(damaage);
+        }
     }
+    /*
+    void OnTriggerExit2D(Collider2D other)
+    {
+        Debug.Log($"Exit {other.name}");
+    }
+    */
 }
